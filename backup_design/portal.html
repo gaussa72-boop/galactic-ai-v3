@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<title>Quantum KI Portal</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+<div id="loader">
+    <div class="singularitaet"></div>
+    <div class="galaktischer-nebel"></div>
+</div>
+<div id="interface" style="display:none;">
+    <h1 class="gold-title">✨ Quantum KI Spiegel ✨</h1>
+    <div class="button-container">
+        <button onclick="ionosAI()" class="gold-button">IONOS AI</button>
+        <button onclick="urspiritAI()" class="gold-button">Urspirit AI</button>
+        <button onclick="lebensblumeSimulation()" class="gold-button">Lebensblume</button>
+        <button onclick="quantenKI()" class="gold-button">Quanten KI</button>
+    </div>
+    <div id="chatbox" class="gold-chatbox">
+        <textarea id="userMessage" placeholder="Sprich mit dem Wunderland-Charakter..."></textarea>
+        <div class="chat-buttons">
+            <button onclick="sendMessage('ionos')">Senden an IONOS</button>
+            <button onclick="sendMessage('urspirit')">Senden an Urspirit</button>
+        </div>
+        <div id="chatLog"></div>
+    </div>
+    <div id="wunderland-character">🐇 "Willkommen im Spiegelreich! Was möchtest du erkunden?"</div>
+</div>
+<script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>

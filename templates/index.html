@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>IONOS-7 | STABLE CORE</title>
+    <style>
+        :root { --gold: #ffd700; --quant: #00f2ff; }
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #000; font-family: 'Orbitron', sans-serif; }
+        
+        /* Globale Diashow - IMMER im Hintergrund */
+        #bg-slideshow { position: fixed; width: 100%; height: 100%; z-index: 1; pointer-events: none; }
+        .bg-slide { position: absolute; width: 100%; height: 100%; opacity: 0; transition: 3s ease-in-out; background-size: cover; background-position: center; filter: brightness(0.4); }
+        .bg-slide.active { opacity: 1; }
+
+        /* Ladebildschirm - Liegt über allem (z-index 2000) */
+        #loader { 
+            position: fixed; width: 100%; height: 100%; z-index: 2000; 
+            display: flex; justify-content:            display: flex; ju background: rgba(0,0,0,0.8); transition: 1.5s;
+        }
+        .sun { 
+            width: 140px; height: 140px; background: radial-gradient(circle, #fff, var(--gold), #ff4500);
+            border-radius: 50%; box-shadow: 0 0 60px var(--gold); cursor: pointer; z-index: 2001;
+            animation: pulse 1.5s infinite alternate; transition: 1.2s;
+        }
+        @keyframes pulse { to { transform: scale(1.1); box-shadow: 0 0 100px var(--gold); } }
+        
+        .planet {
+            position: absolute; width: 85px; height: 85px; border-radius: 50%;
+            border: 2px solid var(--quant); background-size: cover; background-position: center;
+            box-shadow: 0 0 20px var(--quant); z-index: 1999; pointer-events: none;
+        }
+
+        /* Das Chat-Portal - Muss über der Diashow liegen (z-index 1000) */
+        #portal { 
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            z-index: 1000; flex-direction: column; justify-content: center; align-items: center;
+        }
+        .chat-ui { 
+            width: 85%; max-width: 900px; height: 75vh; 
+            background: rgba(0,5,15,0.85); border: 2px solid var(--gold); 
+            border-radius: 20px; display: flex; flex-direction: column; 
+            backdrop-filter: blur(15px); box-shadow: 0 0 50px rgba(255, 215, 0, 0.3);
+        }
+
+        #display { flex: 1; overflow-y: auto; padding: 25px; color: #fff; font-family: 'Courier New', monospace; font-size: 1.1em; }
+        .input-bar { display: flex; padding: 20px; border-top: 1px solid var(--gold); background: rgba(0,0,0,0.5); }
+        input { flex: 1; background: transparent; border: 1px solid var(--gold); color: var(--gold); padding: 12px; outline: none; }
+        button { background: var(--gold); border: none; padding: 0 25px; cursor: pointer; font-weight: bold; }
+
+        .ignite { transform: scale(50); opacity: 0; pointer-events: none; }
+    </style>
+</head>
+<body>
+    <div id="bg-slideshow"></div>
+
+    <div id="loader">
+        <div id="orbit-system" style="position:relative; width:600px; height:600px; display:flex; justify-content:center; align-items:center;">
+            <div class="sun" onclick="ignite()"></div>
+        </div>
+    </div>
+
+    <div id="portal">
+        <div class="chat-ui">
+            <div id="display"></div>
+            <div class="input-bar">
+                <input type="text" id="msg" placeholder="Befehl an IONOS-7..." onkeypress="if(event.key==='Enter') send()">
+                <button onclick="send()">RUN</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const imgs = ['1.jpg', '2.jpg', '3.jpg', '4.jpg', '5.jpg'];
+        
+        function init() {
+            const bg = document.getElementById('bg-slideshow');
+            const orbit = document.getElementById('orbit-system');
+            
+            imgs.forEach((name, i) => {
+                const s = document.createElement('div');
+                s.className = 'bg-slide' + (i===0?' active':'');
+                s.style.backgroundImage = `url('/static/images/${name}')`;
+                bg.appendChild(s);
+
+                const p = document.createElement('div');
+                p.className = 'planet';
+                p.style.backgroundImage = `url('/static/images/${name}')`;
+                const angle = (i / imgs.length) * Math.PI * 2;
+                const x = Math.cos(angle) * 230;
+                const y = Math.sin(angle) * 230;
+                p.style.left = `calc(50% + ${x}px - 42px)`;
+                p.style.top = `calc(50% + ${y}px - 42px)`;
+                orbit.appendChild(p);
+            });
+
+            let cur = 0;
+            setInterval(() => {
+                const slides = document.querySelectorAll('.bg-slide');
+                if(slides.length > 0) {
+                    slides[cur].classList.remove('active');
+                    cur = (cur + 1) % slides.length;
+                    slides[cur].classList.add('active');
+                }
+            }, 5000);
+        }
+
+        function ignite() {
+            document.querySelector('.sun').classList.add('ignite');
+            document.querySelectorAll('.planet').forEach(p => p.style.opacity = '0');
+            setTimeout(() => {
+                document.getElementById('loader').style.display = 'none';
+                document.getElementById('portal').style.display = 'flex'; // Hier war der Fehler: flex statt block
+            }, 1000);
+        }
+
+        async function send() {
+            const i = document.getElementById('msg'), d = document.getElementById('display');
+            if(!i.value) return;
+            d.innerHTML += `<div>> USER: ${i.value}</div>`;
+            const r = await fetch('/chat', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({msg: i.value})
+            });
+            const data = await r.json();
+            d.innerHTML += `<div style="color:var(--gold);">[AI]: ${data.reply}</div>`;
+            i.value = ''; d.scrollTop = d.scrollHeight;
+        }
+        window.onload = init;
+    </script>
+</body>
+</html>
