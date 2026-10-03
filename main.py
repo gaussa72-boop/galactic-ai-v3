@@ -37,6 +37,9 @@ def get_ai_reply(text):
 @app.route("/")
 def index(): return render_template("index.html")
 
+@app.route("/engine")
+def engine(): return render_template("game_engine.html")
+
 @app.route("/chat", methods=["POST"])
 def chat():
     data = request.json
