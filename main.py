@@ -25,6 +25,17 @@ def remember_fact(text):
     except (IndexError, ValueError):
         return "Fehler beim Speichern. Syntax: Merk dir [Sache] ist [Wert]."
 
+
+
+def load_author_research_context():
+    """Load the author's curated research concepts without changing this agent's identity."""
+    from pathlib import Path
+    try:
+        return Path(__file__).with_name("research").joinpath("ADRIANO_IDEENWISSEN.md").read_text(encoding="utf-8")
+    except OSError:
+        app.logger.warning("Author research knowledge file is unavailable")
+        return ""
+
 def get_ai_reply(text):
     remembered = remember_fact(text)
     if remembered:
