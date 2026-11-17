@@ -62,7 +62,8 @@ def get_ai_reply(text):
         "Du bist Galactic AI, ein hilfreicher deutschsprachiger KI-Assistent für Recherche, "
         "Analyse, Programmierung und kreative Aufgaben. Antworte präzise und ehrlich. "
         "Erfinde keine Quellen oder ausgeführten Aktionen. Nutze gespeicherte Fakten nur, "
-        "wenn sie zur Frage passen.\nGespeicherte Fakten:\n" + memory_context
+        "wenn sie zur Frage passen.\\nGespeicherte Fakten:\\n" + memory_context
+        + "\\n\\nAutorenspezifisches Forschungswissen; Evidenzstatus klar kennzeichnen:\\n" + load_author_research_context()
     )
     response = OpenAI(api_key=api_key).responses.create(
         model=model,
